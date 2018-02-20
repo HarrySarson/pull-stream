@@ -68,14 +68,12 @@ The `read` function *must not* be called until the previous call has called back
 Unless, it is a call to abort the stream (`read(truthy, cb)`).
 
 ```js
-//a stream of random numbers.
-function random (n) {
-  return function (end, cb) {
-    if(end) return cb(end)
-    //only read n times, then stop.
-    if(0>--n) return cb(true)
-    cb(null, Math.random())
-  }
+// random(n) generates a stream of n random numbers.
+const random (n) => (end, cb) => {
+  if (end) return cb(end)
+  // only read n times, then stop.
+  if (0 > --n) return cb(true)
+  cb(null, Math.random())
 }
 
 ```
@@ -90,25 +88,23 @@ and [Sinks](./docs/sinks/index.md)
 are reader streams.
 
 ```js
-//read source and log it.
-function logger () {
-  return function (read) {
-    read(null, function next(end, data) {
-      if(end === true) return
-      if(end) throw end
+// logger() generates a stream that reads a source and log it.
+const logger () => (read) => {
+  read(null, (end, data) => {
+    if (end === true) return
+    if (end) throw end
 
-      console.log(data)
-      read(null, next)
-    })
-  }
+    console.log(data)
+    read(null, next)
+  })
 }
 ```
 
 Since these are just functions, you can pass them to each other!
 
 ```js
-var rand = random(100)
-var log = logger()
+const rand = random(100) // rand is a Source
+const log = logger() // log is a Sink
 
 log(rand) //"pipe" the streams.
 
@@ -117,7 +113,7 @@ log(rand) //"pipe" the streams.
 but, it's easier to read if you use's pull-stream's `pull` method
 
 ```js
-var pull = require('pull-stream')
+const pull = require('pull-stream')
 
 pull(random(), logger())
 ```
